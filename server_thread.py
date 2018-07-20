@@ -1,8 +1,12 @@
+from bs4 import BeautifulSoup as BS
+import json
 import socket
 import threading
+import requests
 
 
 class SocketServer():
+
     def __init__(self):
         self.host = socket.gethostname()
         self.port = 50007
@@ -25,7 +29,7 @@ class SocketServer():
             print("[接続]{}".format(addr))
             # クライアントを追加
             self.clients.append((conn, addr))
-            # スレッド作成
+            # 各ユーザのスレッド作成
             thread = threading.Thread(target=self.handler, args=(conn, addr), daemon=True)
             # スレッドスタート
             thread.start()
@@ -36,6 +40,14 @@ class SocketServer():
         conn.close()
         # クライアントを除外する
         self.clients.remove((conn, addr))
+    
+    def weather_api(self):
+        API_KEY = "67b1900b35302d14a27601e16e326625"
+        url = "http://api.openweathermap.org/data/2.5/weather?id=1850147&units=metric&appid={}".format(API_KEY)
+        res = requests.get(url)
+        weather_datas = json.loads(res.text)
+        weather = weather_datas["weather"][0]["main"]
+        return ("明日の東京の天気は{}です".format(weather)).encode()
 
     def handler(self, conn, addr):
         while True:
@@ -53,6 +65,13 @@ class SocketServer():
                 self.close_connection(conn, addr)
                 break
             else:
+                if data.find(b'weather') > 0:
+                    print("東京の天気",end="")
+                    data = self.weather_api()
+
+                elif data.find(b'member') > 0:
+                    data = str(member_count).encode()
+
                 print('data : {}, addr&port: {}'.format(data, addr))
                 for client in self.clients:
                     try:
@@ -64,3 +83,6 @@ class SocketServer():
 if __name__ == "__main__":
     ss = SocketServer()
     ss.socket_server_up()
+
+
+#送信源が同じ時はメッセージを送信しない
