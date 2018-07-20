@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from bs4 import BeautifulSoup as BS
 import json
 import socket
@@ -7,6 +8,13 @@ import requests
 
 class SocketServer():
 
+=======
+import socket
+import threading
+
+
+class SocketServer():
+>>>>>>> 93ec3ed34f3cf7c6b670e68dea6c72aeab3c5953
     def __init__(self):
         self.host = socket.gethostname()
         self.port = 50007
@@ -29,7 +37,11 @@ class SocketServer():
             print("[接続]{}".format(addr))
             # クライアントを追加
             self.clients.append((conn, addr))
+<<<<<<< HEAD
             # 各ユーザのスレッド作成
+=======
+            # スレッド作成
+>>>>>>> 93ec3ed34f3cf7c6b670e68dea6c72aeab3c5953
             thread = threading.Thread(target=self.handler, args=(conn, addr), daemon=True)
             # スレッドスタート
             thread.start()
@@ -40,6 +52,7 @@ class SocketServer():
         conn.close()
         # クライアントを除外する
         self.clients.remove((conn, addr))
+<<<<<<< HEAD
     
     def weather_api(self):
         API_KEY = "67b1900b35302d14a27601e16e326625"
@@ -48,6 +61,8 @@ class SocketServer():
         weather_datas = json.loads(res.text)
         weather = weather_datas["weather"][0]["main"]
         return ("明日の東京の天気は{}です".format(weather)).encode()
+=======
+>>>>>>> 93ec3ed34f3cf7c6b670e68dea6c72aeab3c5953
 
     def handler(self, conn, addr):
         while True:
@@ -65,6 +80,7 @@ class SocketServer():
                 self.close_connection(conn, addr)
                 break
             else:
+<<<<<<< HEAD
                 if data.find(b'weather') > 0:
                     print("東京の天気",end="")
                     data = self.weather_api()
@@ -72,6 +88,8 @@ class SocketServer():
                 elif data.find(b'member') > 0:
                     data = str(member_count).encode()
 
+=======
+>>>>>>> 93ec3ed34f3cf7c6b670e68dea6c72aeab3c5953
                 print('data : {}, addr&port: {}'.format(data, addr))
                 for client in self.clients:
                     try:
@@ -83,6 +101,9 @@ class SocketServer():
 if __name__ == "__main__":
     ss = SocketServer()
     ss.socket_server_up()
+<<<<<<< HEAD
 
 
 #送信源が同じ時はメッセージを送信しない
+=======
+>>>>>>> 93ec3ed34f3cf7c6b670e68dea6c72aeab3c5953
