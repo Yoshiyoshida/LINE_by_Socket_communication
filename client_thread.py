@@ -22,7 +22,7 @@ class SocketClient():
                 thread = threading.Thread(target=self.handler, args=(sock,), daemon=True)
                 # スレッドスタート
                 thread.start()
-                sock.send("{}さんが入室しました".format(self.name).encode())
+                sock.send("{}さんが入室しました".format(self.client_name).encode())
                 print('{}さん、こんにちは。チャットを開始します。'.format(self.client_name))
                 # クライアントからメッセージを送る
                 self.send_message(sock)
