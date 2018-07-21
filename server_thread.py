@@ -5,12 +5,13 @@ import requests
 
 
 class SocketServer():
-
+    member_count = 0
     def __init__(self):
         #self.host = socket.gethostname()
         self.host = "localhost"
         self.port = 50007
         self.clients = []
+        self.member_count = 0
 
     def socket_server_up(self):
         # ソケットサーバ作成(IPv4, TCP)
@@ -20,6 +21,7 @@ class SocketServer():
             sock.bind((self.host, self.port))
         except OSError:
             print("ポートが使用中です")
+            print("接続しなおしてください")
         # 5 ユーザまで接続を許可
         sock.listen(5)
 
@@ -33,11 +35,12 @@ class SocketServer():
             print("[接続]{}".format(addr))
             # クライアントを追加
             self.clients.append((conn, addr))
+            self.member_count += 1
             # 各ユーザのスレッド作成
             thread = threading.Thread(target=self.handler, args=(conn, addr), daemon=True)
             # スレッドスタート
             thread.start()
-
+            
 
     def close_connection(self, conn, addr):
         print('[切断]{}'.format(addr))
@@ -45,10 +48,10 @@ class SocketServer():
         conn.close()
         # クライアントを除外する
         self.clients.remove((conn, addr))
+        self.member_count -= 1
     
     def weather_api(self):
-        API_KEYは個人のを使用
-        API_KEY = "????????????????
+        API_KEY = "67b1900b35302d14a27601e16e326625"
         url = "http://api.openweathermap.org/data/2.5/weather?id=1850147&units=metric&appid={}".format(API_KEY)
         res = requests.get(url)
         weather_datas = json.loads(res.text)
@@ -71,18 +74,18 @@ class SocketServer():
                 self.close_connection(conn, addr)
                 break
             else:
-                try:
-                    if data.find(b'weather') > 0:
-                        print("東京の天気",end="")
-                        data = self.weather_api()
-                except:
-                    print("通信エラー")
+                
+                if data.find(b'weather') > 0:
+                    data = self.weather_api()
+                elif data.find(b'member') > 0:
+                    data = "{}名".format(str(self.member_count)).encode()
 
                 print('data : {}, addr&port: {}'.format(data, addr))
                 for client in self.clients:
                     try:
                         client[0].sendto(data, client[1])
                     except ConnectionResetError:
+                        print("通信エラー")
                         break
 
 if __name__ == "__main__":
