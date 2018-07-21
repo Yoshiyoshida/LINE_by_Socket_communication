@@ -6,7 +6,8 @@ class SocketClient():
     global end_key 
     end_key = "end"
     def __init__(self, name):
-        self.host = socket.gethostname()
+        #self.host = socket.gethostname()
+        self.host = "localhost"
         self.port = 50007
         self.client_name = name
 
@@ -22,7 +23,7 @@ class SocketClient():
                 thread = threading.Thread(target=self.handler, args=(sock,), daemon=True)
                 # スレッドスタート
                 thread.start()
-                sock.send("{}さんが入室しました".format(self.client_name).encode())
+                sock.send(("{}さんが入室しました".format(self.client_name)).encode())
                 print('{}さん、こんにちは。チャットを開始します。'.format(self.client_name))
                 # クライアントからメッセージを送る
                 self.send_message(sock)
@@ -82,7 +83,6 @@ if __name__ == "__main__":
         print("名前を入力してください：",end="")
         client_name = str(input()).strip()
         if len(client_name) >=1:
-            break
-        
+            break   
     sc = SocketClient(client_name)
     sc.socket_client_up()
