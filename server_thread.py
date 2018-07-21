@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup as BS
 import json
 import socket
 import threading
@@ -8,7 +7,8 @@ import requests
 class SocketServer():
 
     def __init__(self):
-        self.host = socket.gethostname()
+        #self.host = socket.gethostname()
+        self.host = "localhost"
         self.port = 50007
         self.clients = []
 
@@ -16,9 +16,13 @@ class SocketServer():
         # ソケットサーバ作成(IPv4, TCP)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # 接続待ちするサーバのホスト名とポート番号を指定
-        sock.bind((self.host, self.port))
+        try:
+            sock.bind((self.host, self.port))
+        except OSError:
+            print("ポートが使用中です")
         # 5 ユーザまで接続を許可
         sock.listen(5)
+
         while True:
             try:
                 # 接続要求を受信
@@ -33,6 +37,7 @@ class SocketServer():
             thread = threading.Thread(target=self.handler, args=(conn, addr), daemon=True)
             # スレッドスタート
             thread.start()
+
 
     def close_connection(self, conn, addr):
         print('[切断]{}'.format(addr))
@@ -65,12 +70,12 @@ class SocketServer():
                 self.close_connection(conn, addr)
                 break
             else:
-                if data.find(b'weather') > 0:
-                    print("東京の天気",end="")
-                    data = self.weather_api()
-
-                elif data.find(b'member') > 0:
-                    data = str(member_count).encode()
+                try:
+                    if data.find(b'weather') > 0:
+                        print("東京の天気",end="")
+                        data = self.weather_api()
+                except:
+                    print("通信エラー")
 
                 print('data : {}, addr&port: {}'.format(data, addr))
                 for client in self.clients:
@@ -79,10 +84,8 @@ class SocketServer():
                     except ConnectionResetError:
                         break
 
-
 if __name__ == "__main__":
+    print("サーバーを立ち上げます")
     ss = SocketServer()
     ss.socket_server_up()
 
-
-#送信源が同じ時はメッセージを送信しない
