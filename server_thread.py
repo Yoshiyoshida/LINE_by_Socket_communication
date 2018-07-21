@@ -47,7 +47,8 @@ class SocketServer():
         self.clients.remove((conn, addr))
     
     def weather_api(self):
-        API_KEY = "67b1900b35302d14a27601e16e326625"
+        API_KEYは個人のを使用
+        API_KEY = "????????????????
         url = "http://api.openweathermap.org/data/2.5/weather?id=1850147&units=metric&appid={}".format(API_KEY)
         res = requests.get(url)
         weather_datas = json.loads(res.text)
